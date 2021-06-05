@@ -148,9 +148,17 @@ function onTabMessageListener(request, sender, sendResponse){
  */
 function onPopupMessageListener(request,sender,sendResponse){
     if(request == 'authorize'){
-        getTokenRemoteAndCache(function(token){console.log("New token saved: "+token)});
-    } else if (request=='update_status'){
-        getTokenStorage(function(token){console.log('Latest auth token in storage:',token)})
+        getTokenRemoteAndCache(function(token){
+            console.log("New token saved: "+token);
+            sendResponse('Authorized');
+        });
+    } 
+    if (request=='update_status'){
+        getTokenStorage(function(token){
+            console.log('Latest auth token in storage:',token);
+            var msg = token?'Authorized':'Not authorized';
+            sendResponse(msg);
+        });
         // TODO: check local auth token; status: no token, token expired, token ready
     } else if(request=='test'){
         console.log('Test started.');
@@ -169,5 +177,6 @@ try{
         } else{
             onPopupMessageListener(req,s,res);
         }
+        return true;
     });
 } catch(e){console.log(e);}

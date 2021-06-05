@@ -8,5 +8,11 @@ statusBtn.addEventListener('click',function(){sendMessageExtension('update_statu
 testBtn.addEventListener('click',function(){sendMessageExtension('test')});
 
 function sendMessageExtension(msg){
-    chrome.runtime.sendMessage(msg);
+    chrome.runtime.sendMessage(msg, function(response){
+        if(!response){
+            para.innerHTML = `<span style="color:red;">${chrome.runtime.lastError.message}.</span>`
+        } else{
+            para.innerHTML = `<i>${response}</i>`;
+        }
+    });
 }
