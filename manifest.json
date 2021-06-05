@@ -17,11 +17,20 @@
         },
         "default_popup":"/popup.html"
     },
-    "permissions":["tabs","scripting"],
+    "permissions":[
+        "tabs",
+        "scripting",
+        "storage",
+        "identity"
+    ],
     "host_permissions":[
         "https://www.youtube.com/*"
     ],
-    "externally_connectable": {
-        "matches": ["https://*.google.com/*"]
-      }
+    "oauth2": {
+        "client_id": "99161837988-smooula9ggb1568q2jona5oernsua5ng.apps.googleusercontent.com",
+        "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets"
+        ]
+    },
+    "key":"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsq7h4eHYLO0CBvjurZX288EoOlX/VGvm2usF/qTY1feUjdt1sGv7+BMLwGCx7Mlny66G7Me3gpa5pvAO/kVJooSVP4ov5hfpYKrZKPrVIiVtc370CQgTwiB4IQlmiKfLLiiYecNgagEIhcKndmM4Y5D4AGl2UJFpQsu/8vNEN92s7CZzWFSg4U6+AhLptMnuBCsyMrofhvBOnJHZPUOmF4gO3Sg60QAWW6cqlv7hmN9zHAhfXhImgi/pE34eZdTWLyOC0xZv0VmQbkjOStDxqSZVEWGhMzuz2LXCm7TgwsAYdClHrkPFNT4ayD51NH1jkbJZ5x2/Ln+TVokTXZposwIDAQAB"
 }

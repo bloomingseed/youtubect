@@ -4,7 +4,10 @@
 //     document.body.appendChild(scriptElm);
 // }
 function validateRequest(request){
-    return typeof(request.timeout)!='number' || typeof(request.comment)!='string';
+    return  typeof(request.timeout)!='number' 
+            || typeof(request.row)!='number' 
+            || typeof(request.col)!='number'
+            || typeof(request.comment)!='string';
 }
 function getViewportHeight(){
     return document.documentElement.clientHeight;
@@ -37,30 +40,37 @@ function solve(root, cb){
         }
     }
 }
-function makeComment(comment){
-    let interval = 100; // sets a small interval
+function makeComment(comment, callback){
+    const TAG = 'makeComment';
+    let interval = 1000; // sets a small interval
+    console.log(TAG,'Started');
     let t = setInterval(function(){
-        console.log('checking webpage loaded..');
+        console.log(TAG,'checking webpage loaded..');
         if(getViewportHeight()/getDocumentHeight()>0.7) return; // checks if youtube has not finished loading
         clearInterval(t);   // stops checking if webpage is loaded
         let height = getDocumentHeight();   // gets current full document height
-        scroll(0,getViewportHeight());  // scrolls to one viewport height
+        scrollBy(0,getViewportHeight()/2);  // scrolls to half viewport height
+        
         let t2 = setInterval(function(){
-            console.log('checking comments loaded..');
-            if(height==getDocumentHeight()) return; // waits for youtube to load comments
+            console.log(TAG,'checking comments loaded..');
+            if(height==getDocumentHeight()) return; // check if document height not changed
             
             let commentBox = document.querySelector('#placeholder-area');    // gets the clickable comment box
-            if(commentBox==null) return;
+            if(commentBox==null) {
+                scrollBy(0,getViewportHeight()/2);
+                height = getDocumentHeight();   // sets the height to current document height
+                return;
+            }
             
             clearInterval(t2);
-            console.log('making comment..');
+            console.log(TAG,'making comment..');
             commentBox.click();     // clicks onto the box so DOM renders the input area
             let commentInput = document.querySelector('#contenteditable-root');     // gets youtube comment input element
             commentInput.innerText = comment;   // sets the comment
             let root = document.querySelector('#creation-box');
             solve(root,stimulateKeyboardInput);     // sends key input to all these elements
             let commentButton = document.querySelector('#submit-button');
-            console.log('comment ready');
+            console.log(TAG,'comment ready');
             commentButton.click();  // clicks comment button
             let urls = getCommentElements();
             let t3 = setInterval(function(){
@@ -68,29 +78,45 @@ function makeComment(comment){
                 if(currUrls.length<= urls.length) return;
                 
                 clearInterval(t3);
-                return currUrls[0].url;
+                callback(currUrls[0].href);
             },interval);
         },interval);
     },interval);
 }
-function sendMessage(message){
-    let payload = {message};
-    chrome.runtime.sendMessage(payload);
-    console.log('This is content script! we sent our extension a message',payload);
+function sendMessageExtension(message,callback){
+    const TAG = 'sendMessageExtension';
+    chrome.runtime.sendMessage(message);
+    console.log(TAG,'A message was sent to extension side: ',message);
+    if(typeof(callback)=='function') {
+        callback();
+    }
 }
-function main({timeout,comment}){
+function main(args){
     // calls makeComment after `timeout` interval
+    const TAG = 'main';
+    var timeout = args.timeout;
+    console.log(TAG, 'Started. Waiting until comment process: ',timeout+'ms');
     setTimeout(function(){
-        let commentUrl = makeComment(comment);
-        sendMessage(commentUrl);    // sends the url href to extension side
-    },timeout)
+        makeComment(args.comment, function(commentUrl){
+            console.log(TAG, 'Got comment URL: ',commentUrl);
+            sendMessageExtension({commentUrl,row:args.row,col:args.col}, function(){
+                window.close();
+            });    // sends the url href to extension side
+        });
+    },timeout);
 }
+// sends message to extension to get parameters
+sendMessageExtension('ready');
 // listens for messages
-chrome.runtime.onMessage(function(request,sender,sendResponse){
+chrome.runtime.onMessage.addListener(function(request,sender,sendResponse){
+    const TAG = 'onMessage';
+    request = JSON.parse(request);
+    console.log(TAG, 'Received message: ',request, 'Sender: ',sender);
     if(!sender.tab){    // checks if the message comes from the extension
         if(!validateRequest(request)){
             console.error({message:'Either timeout or comment param is not expected data types',request:request});
         } else{
+            console.log(TAG,'Received parameters: ',request);
             main(request);
         }
     }
