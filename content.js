@@ -53,7 +53,7 @@ function makeComment(comment, callback){
         
         let t2 = setInterval(function(){
             console.log(TAG,'checking comments loaded..');
-            if(height==getDocumentHeight()) return; // check if document height not changed
+            // if(height==getDocumentHeight()) return; // check if document height not changed
             
             let commentBox = document.querySelector('#placeholder-area');    // gets the clickable comment box
             if(commentBox==null) {
