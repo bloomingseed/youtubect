@@ -7,7 +7,8 @@ function validateRequest(request){
     return  typeof(request.timeout)!='number' 
             || typeof(request.row)!='number' 
             || typeof(request.col)!='number'
-            || typeof(request.comment)!='string';
+            || typeof(request.comment)!='string'
+            || typeof(request.sheetName)!='string';
 }
 function getViewportHeight(){
     return document.documentElement.clientHeight;
@@ -99,7 +100,7 @@ function main(args){
     setTimeout(function(){
         makeComment(args.comment, function(commentUrl){
             console.log(TAG, 'Got comment URL: ',commentUrl);
-            sendMessageExtension({commentUrl,row:args.row,col:args.col}, function(){
+            sendMessageExtension({commentUrl,row:args.row,col:args.col,sheetName:args.sheetName}, function(){
                 window.close();
             });    // sends the url href to extension side
         });
@@ -114,7 +115,7 @@ chrome.runtime.onMessage.addListener(function(request,sender,sendResponse){
     console.log(TAG, 'Received message: ',request, 'Sender: ',sender);
     if(!sender.tab){    // checks if the message comes from the extension
         if(!validateRequest(request)){
-            console.error({message:'Either timeout or comment param is not expected data types',request:request});
+            console.error({message:'Parameters invalid.',request:request});
         } else{
             console.log(TAG,'Received parameters: ',request);
             main(request);

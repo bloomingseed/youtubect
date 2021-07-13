@@ -3,7 +3,7 @@ function isYoutubeUrlMatchFormat(url,output){
     if(parts.length!=2) return false;
     if(parts[0]!='https://www.youtube.com/watch') return false;
     let q = new URLSearchParams(parts[1]);
-    let arr = ['timeout','comment','row','col'];
+    let arr = ['timeout','comment','row','col','sheetName'];
     for(let key of arr){
         if(q.get(key)==null) return false;
         output[key] = q.get(key);
@@ -42,7 +42,7 @@ function generatePayload(args){
     const FUNC_NAME = 'setValue';
     return JSON.stringify({
         "function": FUNC_NAME,
-        "parameters": [args.commentUrl, args.row, args.col]
+        "parameters": [args.commentUrl, args.row, args.col, args.sheetName]
     });
 }
 function getTokenStorage(callback){
@@ -67,8 +67,9 @@ function xhrWithAuth(args) {
     var retry = true;    
     const PAYLOAD = generatePayload(args);
     // const API_KEY = 'AIzaSyBoOa9ile3fk8_dEo4DRMEzD2g4uRdvLI8';
-    const SCRIPT_ID = 'AKfycbxdp2tFOBq2XcKm_oZdj-oUbnn_SozhRwJeDE6mkgmjFtjevJ49iqoEVFVsmGhS7Pi4';
-    const POST_URL = `https://script.googleapis.com/v1/scripts/${SCRIPT_ID}:run`;
+    // const SCRIPT_ID = 'AKfycbxdp2tFOBq2XcKm_oZdj-oUbnn_SozhRwJeDE6mkgmjFtjevJ49iqoEVFVsmGhS7Pi4';
+    const DEPLOYMENT_ID = 'AKfycbx24LtTDu5pqt-fr4dvYvHZVmF02hcS2qNNY31tEIwgz7ECw0kjH7lmxwA0mv9wFQkc';
+    const POST_URL = `https://script.googleapis.com/v1/scripts/${DEPLOYMENT_ID}:run`;
     
     
     /*** Get the access token and call the identity API ***/
@@ -138,7 +139,8 @@ function onTabMessageListener(request, sender, sendResponse){
     let args = {
         'commentUrl': request.commentUrl,
         'row':request.row,
-        'col':request.col
+        'col':request.col,
+        'sheetName':request.sheetName
     };
     // TODO: call GAS using Execution API here
     xhrWithAuth(args);
@@ -152,8 +154,7 @@ function onPopupMessageListener(request,sender,sendResponse){
             console.log("New token saved: "+token);
             sendResponse('Authorized');
         });
-    } 
-    if (request=='update_status'){
+    } else if (request=='update_status'){
         getTokenStorage(function(token){
             console.log('Latest auth token in storage:',token);
             var msg = token?'Authorized':'Not authorized';

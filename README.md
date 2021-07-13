@@ -4,6 +4,9 @@
     - Comment
     - Send result
     - Batch processing
+- New features:
+    - Rest time intervals: Define which intervals should the task be delayed.
+    - Multiple user: each user can **create new sheet** with **same sheet format** and work from there, or use the same sheet as long as no user executes any same row.
 - Comment box and randomize: Not developed, but can use excel for that: Alt+Enter for multi-line comment, the randomize formula is already done in the spreadsheet.
 
 # How to run
@@ -21,12 +24,13 @@
 # How to use the contained spreadsheet
 - This spreadsheet at "https://docs.google.com/spreadsheets/d/1oHExaxzet-1_2Jm3_vi1tasZjLQLl1dVozOnlb-BEmI/edit#gid=0" is where you type the youtube URL, timeout and comment to execute. It also keeps your comment URL. 
 - The "comments" column can be randomized from a comment box which is on the far right of the spreadsheet, using excel formula. If you need more comments, add rows under the "comment box" then change range in the formula.
+- To set rest time, type the start and end time in the sheet in each row, then select those data and choose "Youtube Commentor Tool" -> "Set Rest time". For each row gets GREEN color then that rest time is set.
+    - How rest time work: For each comment task, we check if current time is IN any of the rest time interval. If true, the task will be delayed until the rest time end, otherwise the task will be delayed 1 second by default.
 
 # Current drawbacks
 - Chrome may open many tabs at once if the connection is slow.
 - Due to Youtube algorithm, **you need to be viewing the video before the "timeout" runs out** so that the page will render the comments area and the tool can find the comment box to post the comment.
 - UX is a bit bad. 
-- Spreadsheet can only run from first to the selected row.
 - Spreadsheet column orders must not be changed.
 - Ads may also be counted in timeout. User should close ads manually for now.
 - Google puts many constraints: daily token limit of 10000, test users of 100. Publishing app requires verification.
